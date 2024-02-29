@@ -9,7 +9,7 @@ public class MSSQLService : IConnection {
     public string? Table { get; set; }
 
     public SqlConnection? Connection { get; private set; }
-
+    public bool IsConnected { get; private set; }
     public event EventHandler<string>? ConnectDB;
 
     public MSSQLService(string? connectionString, string? table) {
@@ -22,10 +22,12 @@ public class MSSQLService : IConnection {
             Connection.Open();
             if (DatabaseHelper.TableExists(Connection, Table)) {
                 ConnectDB?.Invoke(this, Table!);
+                IsConnected = true;
             }
             ConnectDB?.Invoke(this, "successfully connection!");
         } catch (Exception) {
             ConnectDB?.Invoke(this, "error connection!");
+            IsConnected = false;
         }
     }
 }

@@ -9,11 +9,11 @@ public class PostgreInsertRequest : IDatabaseRequest {
         _dto = dto;
     }
 
-    public void Execute() {
+    public async Task Execute() {
         int lastId = GetLastId();
 
         using (var connection = new NpgsqlConnection(_dto.Connection)) {
-            connection.Open();
+            await connection.OpenAsync();
             int newId = lastId + 1;
 
             using (var cmd = new NpgsqlCommand($"INSERT INTO {_dto.TableName} (id, productcode, productname, email) VALUES (@id, @code, @name, @email)",
@@ -22,7 +22,7 @@ public class PostgreInsertRequest : IDatabaseRequest {
                 cmd.Parameters.AddWithValue("code", _dto.Product.Code);
                 cmd.Parameters.AddWithValue("name", _dto.Product.Name);
                 cmd.Parameters.AddWithValue("email", _dto.Product.Email);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }

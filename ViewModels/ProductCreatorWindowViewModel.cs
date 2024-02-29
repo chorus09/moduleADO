@@ -37,8 +37,8 @@ public class ProductCreatorWindowViewModel : INotifyPropertyChanged {
         }
     }
     public ProductCreatorWindowViewModel() {
-        _tableName = DatabaseHelper.GetConnection().Table;
-        _connectionString = DatabaseHelper.GetConnection().ConnectionString;
+        _tableName = DatabaseHelper.GetPostgreConnection().Table;
+        _connectionString = DatabaseHelper.GetPostgreConnection().ConnectionString;
     }
     public RelayCommand CreateProductCommand => new(execute => CreateProduct());
     public event EventHandler<string>? ProductCreated;

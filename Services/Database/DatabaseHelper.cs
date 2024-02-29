@@ -24,7 +24,10 @@ public static class DatabaseHelper {
             return false;
         }
     }
-    private static IConnection? _connection;
-    public static IConnection? GetConnection() => _connection;
-    public static void SetConnection(IConnection connection) => _connection = connection;
+    private static MSSQLService? _SqlConnection;
+    private static PostgreService? _PostgreConnection;
+    public static MSSQLService? GetSqlConnection() => _SqlConnection;
+    public static void SetSqlConnection(MSSQLService connection) => _SqlConnection = connection;
+    public static PostgreService? GetPostgreConnection() => _PostgreConnection;
+    public static void SetPostgreConnection(PostgreService connection) => _PostgreConnection = connection;
 }

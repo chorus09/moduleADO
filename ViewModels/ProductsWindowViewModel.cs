@@ -43,16 +43,17 @@ public class ProductsWindowViewModel : INotifyPropertyChanged {
     }
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public RelayCommand RefreshProductsCommand => new(execute => RefreshProducts());
-    public RelayCommand GetProductsCommand => new(execute => GetProducts(), canExecute => Email != null);
-    public RelayCommand DeleteProductCommand => new(execute => DeleteProduct(), canExecute => SelectedProduct?.Id != null);
-    public RelayCommand DeleteAllProductsCommand => new(execute => DeleteAllProducts(), canExecute => Products?.Count > 0);
-    public RelayCommand DeleteProductsForOneCommand => new(execute => DeleteProductsForOne(), canExecute => Email != null);
+    public RelayCommand RefreshProductsCommand => new(async execute => await RefreshProducts());
+    public RelayCommand GetProductsCommand => new(async execute => await GetProducts(), canExecute => Email != null);
+    public RelayCommand DeleteProductCommand => new(async execute => await DeleteProduct(), canExecute => SelectedProduct?.Id != null);
+    public RelayCommand DeleteAllProductsCommand => new(async execute => await DeleteAllProducts(), canExecute => Products?.Count > 0);
+    public RelayCommand DeleteProductsForOneCommand => new(async execute => await DeleteProductsForOne(), canExecute => Email != null);
     public ProductsWindowViewModel() {
         Products = [];
-        _connectionString = $"Server=localhost;Port=5432;Database=postgres;User Id=postgres;Password=26061;";
-        _tableName = $"products";
-        DatabaseHelper.SetConnection(new PostgreService(_connectionString, _tableName));
+        PostgreService service = DatabaseHelper.GetPostgreConnection();
+        _connectionString = service.ConnectionString;
+        _tableName = service.Table;
+
         _productUpdater = new(GetAction());
     }
     private Action<Product> GetAction() => (product) => {
@@ -70,52 +71,50 @@ public class ProductsWindowViewModel : INotifyPropertyChanged {
     protected virtual void OnPropertyChanged(string propertyName) {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-    private void DeleteProductsForOne() {
+    private async Task DeleteProductsForOne() {
         IAllDeleteForOne request = new PostgreDeleteRequest(new DeletePostgresDTO() {
             Connection = _connectionString!,
             TableName = _tableName!,
             Email = Email!,
         });
-        request.ExecuteAllForOne();
-        GetProducts();
+        await request.ExecuteAllForOne();
+        await GetProducts();
     }
-    private void DeleteProduct() {
+    private async Task DeleteProduct() {
         IDatabaseRequest request = new PostgreDeleteRequest(new DeletePostgresDTO() {
             Connection = _connectionString!,
             TableName = _tableName!,
             Id = _selectedProduct!.Id
         });
-        request.Execute();
-        GetProducts();
+        await request.Execute();
+        await GetProducts();
     }
-    private void DeleteAllProducts() {
+    private async Task DeleteAllProducts() {
         IAll request = new PostgreDeleteRequest(new DeletePostgresDTO() {
             Connection = _connectionString!,
             TableName = _tableName!,
-            Id = _selectedProduct!.Id
         });
-        request.ExecuteAll();
-        GetProducts();
+        await request.ExecuteAll();
     }
-    private void GetProducts() {
+    private async Task GetProducts() {
         IDatabaseRequest request = new PostgreSelectRequest(new SelectPostgresDTO() {
             Connection = _connectionString,
             TableName = _tableName,
             Email = this.Email
         });
-        request.Execute();
+        await request.Execute();
         IValues values = (PostgreSelectRequest)request;
         Products = new ObservableCollection<Product>(ProductManage.GetProductsFromList(values.Values));
         foreach (var item in Products) {
             item.Attach(_productUpdater);
         }
     }
-    private void RefreshProducts() {
+    private async Task RefreshProducts() {
         IAll request = new PostgreSelectRequest(new SelectPostgresDTO() {
             Connection = _connectionString,
             TableName = _tableName,
         });
-        request.ExecuteAll();
+        await request.ExecuteAll();
         IValues values = (PostgreSelectRequest)request;
         Products = new ObservableCollection<Product>(ProductManage.GetProductsFromList(values.Values));
     }

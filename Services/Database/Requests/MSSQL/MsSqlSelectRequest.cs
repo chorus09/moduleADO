@@ -11,9 +11,9 @@ public class MsSqlSelectRequest : IDatabaseRequest, IValues {
         Values = new List<List<object>>();
     }
 
-    public void Execute() {
+    public async Task Execute() {
         using (var connection = new SqlConnection(_dto.Connection)) {
-            connection.Open();
+            await connection.OpenAsync();
             using (var cmd = new SqlCommand($"SELECT * FROM {_dto.TableName}", connection))
             using (var reader = cmd.ExecuteReader()) {
                 while (reader.Read()) {

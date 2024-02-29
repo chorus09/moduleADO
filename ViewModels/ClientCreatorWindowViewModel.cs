@@ -63,8 +63,8 @@ public class ClientCreatorWindowViewModel : INotifyPropertyChanged {
     }
 
     public ClientCreatorWindowViewModel() {
-        _tableName = DatabaseHelper.GetConnection().Table;
-        _connectionString = DatabaseHelper.GetConnection().ConnectionString;
+        _tableName = DatabaseHelper.GetSqlConnection().Table;
+        _connectionString = DatabaseHelper.GetSqlConnection().ConnectionString;
     }
 
     public RelayCommand CreateClientCommand => new RelayCommand(execute => CreateClient());

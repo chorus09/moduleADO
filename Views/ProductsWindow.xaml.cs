@@ -29,4 +29,10 @@ public partial class ProductsWindow : Window {
         ProductCreatorWindow window = new();
         window.Show();
     }
+
+    private void ChangeWindow_Click(object sender, RoutedEventArgs e) {
+        ChoosenWindow window = new();
+        window.Show();
+        this.Close();
+    }
 }

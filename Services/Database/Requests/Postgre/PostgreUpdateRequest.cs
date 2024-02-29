@@ -10,9 +10,9 @@ namespace moduleADO.Services.Database.Requests.Postgre
             _dto = dto;
         }
 
-        public void Execute() {
+        public async Task Execute() {
             using (var connection = new NpgsqlConnection(_dto.Connection)) {
-                connection.Open();
+                await connection.OpenAsync();
                 string query = $"UPDATE {_dto.TableName} SET productcode = @code, productname = @name, email = @email";
                 query += " WHERE id = @id";
                 using (var cmd = new NpgsqlCommand(query, connection)) {
@@ -20,7 +20,7 @@ namespace moduleADO.Services.Database.Requests.Postgre
                     cmd.Parameters.AddWithValue("name", _dto.Name);
                     cmd.Parameters.AddWithValue("email", _dto.Email);
                     cmd.Parameters.AddWithValue("id", _dto.Id);
-                    cmd.ExecuteNonQuery();
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
         }

@@ -8,7 +8,7 @@ namespace moduleADO.Services.Database;
 public class PostgreService : IConnection {
     public string? ConnectionString { get; private set; }
     public string? Table { get; set; }
-
+    public bool IsConnected { get; private set; }
     public NpgsqlConnection? Connection { get; private set; }
     public event EventHandler<string>? ConnectDB;
 
@@ -23,10 +23,12 @@ public class PostgreService : IConnection {
             Connection.Open();
             if (DatabaseHelper.TableExists(Connection, Table)) {
                 ConnectDB?.Invoke(this, Table!);
+                IsConnected = true;
             }
             ConnectDB?.Invoke(this, "successfully connection!");
         } catch (Exception) {
             ConnectDB?.Invoke(this, "error connection!");
+            IsConnected = false;
         }
     }
 }

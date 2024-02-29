@@ -18,4 +18,10 @@ public partial class ClientsWindow : Window {
     private void RefreshItems_Click(object sender, RoutedEventArgs e) {
         ClientsDataGrid.Items.Refresh();
     }
+
+    private void ChangeWindow_Click(object sender, RoutedEventArgs e) {
+        ChoosenWindow window = new();
+        window.Show();
+        this.Close();
+    }
 }

@@ -11,11 +11,11 @@ public class MsSqlInsertRequest : IDatabaseRequest {
         _dto = dto;
     }
 
-    public void Execute() {
+    public async Task Execute() {
         int lastId = GetLastId();
 
         using (var connection = new SqlConnection(_dto.Connection)) {
-            connection.Open();
+            await connection.OpenAsync();
             int newId = lastId + 1;
 
             using (var cmd = new SqlCommand($"INSERT INTO {_dto.TableName} (FirstName, LastName, MiddleName, Email, Phone) " +
@@ -26,7 +26,7 @@ public class MsSqlInsertRequest : IDatabaseRequest {
                 cmd.Parameters.AddWithValue("middleName", _dto.Client.MiddleName);
                 cmd.Parameters.AddWithValue("email", _dto.Client.Email);
                 cmd.Parameters.AddWithValue("phone", _dto.Client.Phone);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }

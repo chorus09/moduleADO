@@ -82,6 +82,12 @@
                     Content="Add product"
                     Click="AddNewProduct_Click"/>
             <Button Height="20"
+                    VerticalAlignment="Top"
+                    Grid.ColumnSpan="2"
+                    Margin="5,175,5,5"
+                    Content="Change window"
+                    Click="ChangeWindow_Click" />
+            <Button Height="20"
                     VerticalAlignment="Bottom"
                     Grid.Column="2"
                     Margin="5,115,5,35"

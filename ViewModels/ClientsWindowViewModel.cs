@@ -32,15 +32,16 @@ public class ClientsWindowViewModel : INotifyPropertyChanged {
             OnPropertyChanged(nameof(SelectedClient));
         }
     }
-    public RelayCommand GetClientsCommand => new(execute => GetClients());
-    public RelayCommand RefreshClientsCommand => new(execute => RefreshClients());
-    public RelayCommand DeleteClientCommand => new(execute => DeleteClient());
-    public RelayCommand DeleteAllClientsCommand => new(execute => DeleteAllClients());
+    public RelayCommand GetClientsCommand => new(async execute => await GetClients(), canExecute => Clients.Count > 0);
+    public RelayCommand RefreshClientsCommand => new(async execute => await RefreshClients());
+    public RelayCommand DeleteClientCommand => new(async execute => await DeleteClient(), canExecute => SelectedClient != null);
+    public RelayCommand DeleteAllClientsCommand => new(async execute => await DeleteAllClients(), canExecute => Clients.Count > 0);
     public ClientsWindowViewModel() {
         Clients = [];
-        _connectionString = $"Server=localhost;Database=mssqllocaldb;User Id=sa;Password=sa;";
-        _tableName = $"clients";
-        DatabaseHelper.SetConnection(new MSSQLService(_connectionString, _tableName));
+        MSSQLService service = DatabaseHelper.GetSqlConnection();
+        _connectionString = service.ConnectionString;
+        _tableName = service.Table;
+
         _clientUpdater = new(GetAction());
     }
     private Action<Client> GetAction() => (client) => {
@@ -54,15 +55,15 @@ public class ClientsWindowViewModel : INotifyPropertyChanged {
             Connection = _connectionString,
             TableName = _tableName
         });
-        request.Execute();
+        Task.Run(request.Execute);
     };
-    private void GetClients() {
+    private async Task GetClients() {
         IDatabaseRequest request = new MsSqlSelectRequest(
             new SelectMSSQLDTO() {
                 Connection = _connectionString,
                 TableName = _tableName,
             });
-        request.Execute();
+        await Task.Run(request.Execute);
         IValues values = (MsSqlSelectRequest)request;
         Clients = new ObservableCollection<Client>(ClientManage.GetClientsFromList(values.Values));
         foreach (var item in Clients) {
@@ -70,26 +71,26 @@ public class ClientsWindowViewModel : INotifyPropertyChanged {
         }
     }
 
-    private void RefreshClients() {
-        GetClients();
+    private async Task RefreshClients() {
+        await GetClients();
     }
 
-    private void DeleteClient() {
+    private async Task DeleteClient() {
         IDatabaseRequest request = new MsSqlDeleteRequest(new DeleteMSSQLDTO() {
             Connection = _connectionString,
             TableName = _tableName,
             Id = _selectedClient.Id
         });
-        request.Execute();
-        GetClients();
+        await Task.Run(request.Execute);
+        await GetClients();
     }
 
-    private void DeleteAllClients() {
+    private async Task DeleteAllClients() {
         IAll request = new MsSqlDeleteRequest(new DeleteMSSQLDTO() {
             Connection = _connectionString,
             TableName = _tableName,
         });
-        request.ExecuteAll();
+        await Task.Run(request.ExecuteAll);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

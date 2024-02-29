@@ -1,5 +1,6 @@
 ﻿using moduleADO.Services.Database.Requests.DTO.MSSQLDTO;
 using System.Data.SqlClient;
+using System.Runtime.CompilerServices;
 
 namespace moduleADO.Services.Database.Requests.MSSQL;
 public class MsSqlUpdateRequest : IDatabaseRequest {
@@ -9,9 +10,9 @@ public class MsSqlUpdateRequest : IDatabaseRequest {
         _dto = dto;
     }
 
-    public void Execute() {
+    public async Task Execute() {
         using (var connection = new SqlConnection(_dto.Connection)) {
-            connection.Open();
+            await connection.OpenAsync();
 
             string query = $"UPDATE {_dto.TableName} SET FirstName = @firstName, LastName = @lastName, MiddleName = @middleName, Email = @email, Phone = @phone";
             query += " WHERE Id = @id";
@@ -22,7 +23,7 @@ public class MsSqlUpdateRequest : IDatabaseRequest {
                 cmd.Parameters.AddWithValue("middleName", _dto.MiddleName);
                 cmd.Parameters.AddWithValue("email", _dto.Email);
                 cmd.Parameters.AddWithValue("phone", _dto.Phone);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }

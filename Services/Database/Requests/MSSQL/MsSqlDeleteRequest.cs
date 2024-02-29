@@ -8,20 +8,20 @@ public class MsSqlDeleteRequest : IDatabaseRequest, IAll {
         _dto = dto;
     }
 
-    public void Execute() {
+    public async Task Execute() {
         using (var connection = new SqlConnection(_dto.Connection)) {
-            connection.Open();
+            await connection.OpenAsync();
             using (var cmd = new SqlCommand($"DELETE FROM {_dto.TableName} WHERE Id = @id", connection)) {
                 cmd.Parameters.AddWithValue("id", _dto.Id);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }
-    public void ExecuteAll() {
+    public async Task ExecuteAll() {
         using (var connection = new SqlConnection(_dto.Connection)) {
-            connection.Open();
+            await connection.OpenAsync();
             using (var cmd = new SqlCommand($"DELETE FROM {_dto.TableName}", connection)) {
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }

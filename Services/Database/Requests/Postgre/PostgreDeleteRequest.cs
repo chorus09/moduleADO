@@ -10,31 +10,31 @@ public class PostgreDeleteRequest : IDatabaseRequest, IAll, IAllDeleteForOne {
         _dto = dto;
     }
 
-    public void Execute() {
+    public async Task Execute() {
         using (var connection = new NpgsqlConnection(_dto.Connection)) {
-            connection.Open();
+            await connection.OpenAsync();
             using (var cmd = new NpgsqlCommand($"DELETE FROM {_dto.TableName} WHERE Id = @id", connection)) {
                 cmd.Parameters.AddWithValue("id", _dto.Id);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }
 
-    public void ExecuteAll() {
+    public async Task ExecuteAll() {
         using (var connection = new NpgsqlConnection(_dto.Connection)) {
-            connection.Open();
+            await connection.OpenAsync();
             using (var cmd = new NpgsqlCommand($"DELETE FROM {_dto.TableName}", connection)) {
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }
 
-    public void ExecuteAllForOne() {
+    public async Task ExecuteAllForOne() {
         using (var connection = new NpgsqlConnection(_dto.Connection)) {
-            connection.Open();
+            await connection.OpenAsync();
             using (var cmd = new NpgsqlCommand($"DELETE FROM {_dto.TableName} Email = @email", connection)) {
                 cmd.Parameters.AddWithValue("email", _dto.Email);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }
